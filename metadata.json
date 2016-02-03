@@ -1,0 +1,14 @@
+{
+  "name": "puppet-mongodb",
+  "version": "0.1.0",
+  "author": "Neil Parley",
+  "summary": "Puppet module for installing mongodb",
+  "license": "Apache-2.0",
+  "source": "https://github.com/nparley/puppet-mongodb",
+  "project_page": "https://github.com/nparley/puppet-mongodb",
+  "issues_url": "https://github.com/nparley/puppet-mongodb/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ],
+  "data_provider": null
+}
