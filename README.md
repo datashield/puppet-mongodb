@@ -16,7 +16,7 @@ A simple module for installing MongoDB on Ubuntu or Centos.
 
 Simply include mongodb to install:
 
-```rugby
+```puppet
 include ::mongodb
 ```
 
