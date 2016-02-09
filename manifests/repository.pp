@@ -1,3 +1,21 @@
+# Class: mongodb::repository
+# ===========================
+#
+# Installs the mongodb yum or apt source repo to the system
+#
+#
+# Examples
+# --------
+#
+# @example
+#    class { 'mongodb::repository':
+#    }
+#
+# Authors
+# -------
+#
+# Neil Parley
+#
 class mongodb::repository {
 
   case $::operatingsystem {
