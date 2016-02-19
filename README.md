@@ -10,21 +10,42 @@
 
 ## Description
 
-A simple module for installing MongoDB on Ubuntu or Centos. 
+A simple module for installing MongoDB on Ubuntu or Centos. This module sets up a root mongoDB user and turns on 
+authentication. The username and password of the root using is given by `$username` and `$password`. This user will have
+access to all the databases that are on the server.
 
 ## Usage
 
 Simply include mongodb to install:
 
 ```puppet
-include ::mongodb
+class { 'mongodb':
+  local_only_access  => true,
+  username           => 'opaluser',
+  password           => 'opalpass',
+}
 ```
 
 ## Reference
 
-```::mongodb::install```: This sub module installs and MongoDB package to the system and starts
-the mongod service. 
-```::mongodb::repository```: Installs the MongoDB yum or apt-get repo onto the system. Called by ```install```
+### ::mongodb::install
+ 
+```puppet
+class mongodb::install ($username='user', $password='password', $local_only_access=true)
+```
+
+This sub module installs and MongoDB package to the system and starts the mongod service. `username` is the username for
+the root mongoDB user and `password` is the password for the root mongoDB user. If `local_only_access` is true then only
+local connections to the database will be allowed. If the variable is false then all adapters will have access to the 
+database.
+
+### ::mongodb::repository
+
+```puppet
+class mongodb::repository
+``` 
+
+Installs the MongoDB yum or apt-get repo onto the system. Called by ```install```
 
 ## Limitations
 
