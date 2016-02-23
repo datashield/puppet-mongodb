@@ -79,7 +79,8 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
   $create_user = "sleep 10 && mongo admin --eval 'db.createUser({user: \"opaluser\", pwd: \"opalpass\", roles: [ { role: \"root\", db: \"admin\" } ]})'"
   $test_user = "sleep 10 && mongo admin --port 27017 -u \"opaluser\" -p \"opalpass\" --authenticationDatabase \"admin\" --eval 'db.getUsers()'"
 
-  exec { $create_user:
+  exec { 'mongo_root_user':
+    command     =>  $create_user,
     path        => ["/usr/bin", "/usr/sbin", "/bin"],
     require     => [Service['mongod'], File_Line['authorization'], File_Line['bindIp']],
     unless      => $test_user,
