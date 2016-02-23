@@ -51,7 +51,7 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
       ensure  => present,
       path    => '/etc/mongod.conf',
       line    => '  bindIp: 127.0.0.1',
-      match   => '^#\ \ bindIp: 127.0.0.1',
+      match   => '^*bindIp: 127.0.0.1',
       require => Package['mongodb-org'],
       notify  => Service['mongod'],
     }
@@ -60,7 +60,7 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
       ensure  => present,
       path    => '/etc/mongod.conf',
       line    => '#  bindIp: 127.0.0.1',
-      match   => '^\ \ bindIp: 127.0.0.1',
+      match   => '^*bindIp: 127.0.0.1',
       require => Package['mongodb-org'],
       notify  => Service['mongod'],
     }
