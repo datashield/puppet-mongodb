@@ -34,6 +34,8 @@
 #
 class mongodb::install ($username='user', $password='password', $local_only_access=true)  {
 
+  include stdlib
+
   class { 'mongodb::repository': before => Package['mongodb-org'] }
 
   package { 'mongodb-org':
@@ -45,32 +47,41 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
   }
 
   if ($local_only_access)  {
-    file { "/etc/mongod.conf":
-      ensure  => directory,
-      owner   => "root",
-      group   => "root",
-      source  => "puppet:///modules/mongodb/mongod_local.conf",
+    file_line { 'bindIp':
+      ensure  => present,
+      path    => '/etc/mongod.conf',
+      line    => '  bindIp: 127.0.0.1',
+      match   => '^#\ \ bindIp: 127.0.0.1',
       require => Package['mongodb-org'],
       notify  => Service['mongod'],
     }
   } else {
-    file { "/etc/mongod.conf":
-      ensure  => directory,
-      owner   => "root",
-      group   => "root",
-      source  => "puppet:///modules/mongodb/mongod_server.conf",
+    file_line { 'bindIp':
+      ensure  => present,
+      path    => '/etc/mongod.conf',
+      line    => '#  bindIp: 127.0.0.1',
+      match   => '^\ \ bindIp: 127.0.0.1',
       require => Package['mongodb-org'],
       notify  => Service['mongod'],
     }
   }
 
-  $create_user = "mongo admin --eval 'db.createUser({user: \"opaluser\", pwd: \"opalpass\", roles: [ { role: \"root\", db: \"admin\" } ]})'"
-  $test_user = "mongo admin --port 27017 -u \"opaluser\" -p \"opalpass\" --authenticationDatabase \"admin\" --eval 'db.getUsers()'"
+  file_line { 'authorization':
+    ensure  => present,
+    path    => '/etc/mongod.conf',
+    line    => 'security.authorization: enabled',
+    match   => '^#security:',
+    require => Package['mongodb-org'],
+    notify  => Service['mongod'],
+    before  => Exec[$create_user],
+  }
+
+  $create_user = "sleep 10 && mongo admin --eval 'db.createUser({user: \"opaluser\", pwd: \"opalpass\", roles: [ { role: \"root\", db: \"admin\" } ]})'"
+  $test_user = "sleep 10 && mongo admin --port 27017 -u \"opaluser\" -p \"opalpass\" --authenticationDatabase \"admin\" --eval 'db.getUsers()'"
 
   exec { $create_user:
-    alias       => 'mongodb_admin_user',
-    path        => ["/usr/bin", "/usr/sbin"],
-    require     => [File["/etc/mongod.conf"],Service['mongod']],
+    path        => ["/usr/bin", "/usr/sbin", "/bin"],
+    require     => [Service['mongod'], File_Line['authorization'], File_Line['bindIp']],
     unless      => $test_user,
   }
 
