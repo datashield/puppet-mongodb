@@ -17,6 +17,9 @@
 # If true then only allow connections from 127.0.0.1, i.e. local connections. If false allow connections to the database
 # server from other adapters
 #
+# * `authentication_database`
+# Database used for authentication
+#
 # Examples
 # --------
 #
@@ -32,18 +35,33 @@
 #
 # Neil Parley
 #
-class mongodb::install ($username='user', $password='password', $local_only_access=true)  {
+class mongodb::install ($username='user', $password='password', $local_only_access=true, $authentication_database='admin')  {
 
   include stdlib
 
   class { 'mongodb::repository': before => Package['mongodb-org'] }
 
-  package { 'mongodb-org':
-    ensure    => latest,
-  }
-  ~> service { 'mongod':
-    ensure  => running,
-    enable  => true,
+  case $::operatingsystem {
+    'Ubuntu': {
+      Class["apt::update"] ->
+      package { 'mongodb-org':
+        ensure    => latest,
+      }
+      ~> service { 'mongod':
+        ensure  => running,
+        enable  => true,
+      }
+    }
+    'CentOS': {
+      package { 'mongodb-org':
+        ensure    => latest,
+      }
+      ~> service { 'mongod':
+        ensure  => running,
+        enable  => true,
+      }
+    }
+    default: { fail("Not supported on osfamily ${::operatingsystem}") }
   }
 
   if ($local_only_access)  {
@@ -76,8 +94,8 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
     before  => Exec[$create_user],
   }
 
-  $create_user = "sleep 10 && mongo admin --eval 'db.createUser({user: \"opaluser\", pwd: \"opalpass\", roles: [ { role: \"root\", db: \"admin\" } ]})'"
-  $test_user = "sleep 10 && mongo admin --port 27017 -u \"opaluser\" -p \"opalpass\" --authenticationDatabase \"admin\" --eval 'db.getUsers()'"
+  $create_user = "sleep 10 && mongo $authentication_database --eval 'db.createUser({user: \"$username\", pwd: \"$password\", roles: [ { role: \"root\", db: \"$authentication_database\" } ]})'"
+  $test_user = "sleep 10 && mongo $authentication_database --port 27017 -u \"$username\" -p \"$password\" --authenticationDatabase \"$authentication_database\" --eval 'db.getUsers()'"
 
   exec { 'mongo_root_user':
     command     =>  $create_user,
