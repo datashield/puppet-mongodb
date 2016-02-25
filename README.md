@@ -31,13 +31,13 @@ class { 'mongodb':
 ### ::mongodb::install
  
 ```puppet
-class mongodb::install ($username='user', $password='password', $local_only_access=true)
+class mongodb::install ($username='user', $password='password', $local_only_access=true, $authentication_database='admin') 
 ```
 
 This sub module installs and MongoDB package to the system and starts the mongod service. `username` is the username for
 the root mongoDB user and `password` is the password for the root mongoDB user. If `local_only_access` is true then only
 local connections to the database will be allowed. If the variable is false then all adapters will have access to the 
-database.
+database. `$authentication_database` is the database that mongodb uses for authentication.
 
 ### ::mongodb::repository
 
