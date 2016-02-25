@@ -17,6 +17,9 @@
 # If true then only allow connections from 127.0.0.1, i.e. local connections. If false allow connections to the database
 # server from other adapters
 #
+# * `authentication_database`
+# Database used for authentication
+#
 # Examples
 # --------
 #
@@ -32,17 +35,14 @@
 #
 # Neil Parley
 #
-# ToDO
-# --------
-# Make a root user and then database 'opal' users?
-#
 
-class mongodb ($username='user', $password='password', $local_only_access=true) {
+class mongodb ($username='user', $password='password', $local_only_access=true, $authentication_database='admin') {
 
   class { mongodb::install:
-    local_only_access  => $local_only_access,
-    username           => $username,
-    password           => $password,
+    local_only_access       => $local_only_access,
+    username                => $username,
+    password                => $password,
+    authentication_database => $authentication_database,
   }
 
 }
