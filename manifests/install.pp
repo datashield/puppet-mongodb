@@ -84,6 +84,8 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
     }
   }
 
+  $create_user = "sleep 10 && mongo $authentication_database --eval 'db.createUser({user: \"$username\", pwd: \"$password\", roles: [ { role: \"root\", db: \"$authentication_database\" } ]})'"
+
   file_line { 'authorization':
     ensure  => present,
     path    => '/etc/mongod.conf',
@@ -94,7 +96,6 @@ class mongodb::install ($username='user', $password='password', $local_only_acce
     before  => Exec[$create_user],
   }
 
-  $create_user = "sleep 10 && mongo $authentication_database --eval 'db.createUser({user: \"$username\", pwd: \"$password\", roles: [ { role: \"root\", db: \"$authentication_database\" } ]})'"
   $test_user = "sleep 10 && mongo $authentication_database --port 27017 -u \"$username\" -p \"$password\" --authenticationDatabase \"$authentication_database\" --eval 'db.getUsers()'"
 
   exec { 'mongo_root_user':
